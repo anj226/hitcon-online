@@ -468,19 +468,32 @@ newAssetsConfig.layerMap.background = getAllTileLayerMap();
 newAssetsConfig.layerMap.object = getAllTileLayerMap();
 newAssetsConfig.layerMap.foreground1 = getAllTileLayerMap();
 newAssetsConfig.layerMap.bombmanObstacle = {
-      "O": [
-        "base",
-        6,
-        12
-      ]
-    };
+  "O": [
+    "base",
+    6,
+    12
+  ]
+};
 newAssetsConfig.layerMap.bombmanHasBomb = {
-      "B": [
-        "base",
-        15,
-        14
-      ]
-    };
+  "B": [
+    "base",
+    15,
+    14
+  ]
+};
+
+newAssetsConfig.layerMap.escapeGameDoor = {
+  "B": [
+    "base",
+    10,
+    4
+  ],
+  "O": [
+    "base",
+    8,
+    19
+  ]
+};
 
 
 writeFileToJSON(assetsConfigPath, newAssetsConfig);

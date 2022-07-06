@@ -17,6 +17,8 @@ import {promisify} from 'util';
 import {fileURLToPath} from 'url';
 import InteractiveObjectServerBaseClass from '../../common/interactive-object/server.mjs';
 import {getRunPath, getConfigPath} from '../../common/path-util/path.mjs';
+const LAYER_DOOR = {zIndex: 6, layerName: 'escapeGameDoor'};
+import CellSet from '../../common/maplib/cellset.mjs';
 
 const MAX_PLAYER_PER_TEAM = 5;
 
@@ -112,6 +114,29 @@ class Standalone {
       v.registerExtStateFunc('showTerminal', 'escape-game', 'sf_showTerminal');
       v.registerExtStateFunc('checkIsInFinalizedTeam', 'escape-game', 'sf_checkIsInFinalizedTeam');
     });
+
+    // // set dynamic cell set: bombmanHasBomb
+    this.doorCells = [{'x': 9, 'y': 12, 'h': 1, 'w': 1}]; // key: a unique bomb ID; value: the cell
+    const mapName = "world1";
+    await this.helper.broadcastCellSetUpdateToAllUser(
+        'set', // operation type
+        mapName,
+        CellSet.fromObject({
+          name: LAYER_DOOR.layerName,
+          priority: 3,
+          cells: [],
+          layers: {[LAYER_DOOR.layerName]: "B", "wall": true},
+          dynamic: true,
+        }),
+    );
+    await this.helper.broadcastCellSetUpdateToAllUser(
+      'update', // operation type
+      "world1",
+      CellSet.fromObject({
+        name: LAYER_DOOR.layerName,
+        cells: this.doorCells
+      }),
+    );
   }
 
   /**
@@ -122,6 +147,37 @@ class Standalone {
       address: getConfigWithDefault('terminal.publicAddress', '127.0.0.1'),
       path: getConfigWithDefault('terminal.socketioPath', '') + '/socket.io'
     };
+  }
+
+  async e2s_openDoor() {
+    var res = await this.helper.varUtils.writeVar("@doorIsOpen", null, null, "true");
+    res &&= await this.helper.varUtils.writeVar("@doorLastOpen", null, null, Date.now().toString());
+    await this.helper.broadcastCellSetUpdateToAllUser(
+      'update', // operation type
+      "world1",
+      CellSet.fromObject({
+        name: LAYER_DOOR.layerName,
+        cells: []
+      }),
+    );
+    setTimeout(async function(obj) {
+      var lastOpen = await obj.helper.varUtils.readVar("@doorLastOpen", null, null);
+      lastOpen = parseInt(lastOpen);
+      if(lastOpen + 3000 <= Date.now()) {
+        await obj.helper.varUtils.writeVar("@doorIsOpen", null, null, "false");
+        console.log("door is closed");
+        
+        await obj.helper.broadcastCellSetUpdateToAllUser(
+          'update',
+          "world1",
+          CellSet.fromObject({
+            name: LAYER_DOOR.layerName,
+            cells: obj.doorCells
+          }),
+        );  
+      }
+    }, 3000, this);
+    return res;
   }
 
   /**
@@ -915,3 +971,4 @@ class TerminalObject extends InteractiveObjectServerBaseClass {
 }
 
 export default Standalone;
+
