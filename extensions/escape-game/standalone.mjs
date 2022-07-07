@@ -163,7 +163,7 @@ class Standalone {
     setTimeout(async function(obj) {
       var lastOpen = await obj.helper.varUtils.readVar("@doorLastOpen", null, null);
       lastOpen = parseInt(lastOpen);
-      if(lastOpen + 3000 <= Date.now()) {
+      if (lastOpen + 3000 <= Date.now()) {
         await obj.helper.varUtils.writeVar("@doorIsOpen", null, null, "false");
         console.log("door is closed");
         
@@ -463,6 +463,14 @@ class Standalone {
     const token = await this.getAccessToken(playerID, sfInfo.visibleName);
     await this.helper.callS2cAPI(playerID, 'escape-game', 'showTerminalModal', 60*1000, token);
     return nextState;
+  }
+
+  async s2s_sf_checkAttackerIP(srcExt, playerID, kwargs, sfInfo) {
+    const {nextState, nextStateIncorrect, dialog, correctAnswer} = kwargs;
+    const res = await this.helper.callS2cAPI(playerID, 'dialog',
+    'showDialogWithPrompt', 60*1000, sfInfo.visibleName, dialog);
+    if (res.msg == correctAnswer) return nextState
+    return nextStateIncorrect;
   }
 
 
