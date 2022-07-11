@@ -2,7 +2,7 @@
   "enabled": true,
   "initialPosition": {"mapName": "world1", "x": 15, "y": 15},
   "terminalInfo": {
-    "imageName": "debian:stable"
+    "imageName": "aoaaceai/victim"
   },
   "display": [
     {
@@ -23,28 +23,18 @@
     "initialState": "baseState",
     "states": {
       "baseState": {
-        "func": "checkIsInFinalizedTeam",
+        "func": "forceFinalizeTeam",
         "kwargs": {
-          "nextState": "s1",
-          "errorState": "s2"
+          "nextState": "s1"
         }
       },
       "s1": {
         "func": "showTerminal",
         "kwargs": {
-          "nextState": "s3"
+          "nextState": "s2"
         }
       },
       "s2": {
-        "func": "showDialog",
-        "kwargs": {
-          "dialogs": "You are not in a finalized team, maybe join the team first?",
-          "options": {
-            "Bye": "s3"
-          }
-        }
-      },
-      "s3": {
         "func": "exit",
         "kwargs": {
           "next": "baseState"
