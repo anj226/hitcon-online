@@ -20,12 +20,12 @@
     "initialState": "s1",
     "states": {
       "s1": {
-        "func": "checkAttackerIP",
+        "func": "showDialogAndCheckKey",
         "kwargs": {
           "dialog": "Figured out the attacker?",
           "nextState": "s2",
           "nextStateIncorrect": "s3",
-          "correctAnswer": "192.168.87.87"
+          "key": "192.168.87.87"
         }
       },
       "s2": {
